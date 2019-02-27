@@ -1,18 +1,17 @@
 #!/usr/bin/python
 
-""" accepts commands via keyboard then indicates holding key by color white to black """
-""" there may be a better way to do the nested for loops """
 import sys
 import maestro
 import pygame
 from pygame.locals import *
 
-#this version is more pythonic
 class Player:
-	def __init__(self, ser_port):
+	""" accepts commands via keyboard then can indicate holding key by color white to black """
+	def __init__(self, ser_port, display = True):
+		self._display = display
 		self._pos_dict = { 'l': 4000, 'm': 6000, 'h': 8000 } #l = low, m = mid, h = high
 		self._key_convert = { #{key: [servo, position, opposite, row, col]}
-		 K_1: [0, 'h', K_q, 0, 0], K_q: [0, 'l', K_1, 1, 0], 
+		 K_1: [0, 'h', K_q, 0, 0], K_q: [0, 'l', K_1, 1, 0],
 		 K_2: [1, 'h', K_w, 0, 1], K_w: [1, 'l', K_2, 1, 1],
 		 K_3: [2, 'h', K_e, 0, 2], K_e: [2, 'l', K_3, 1, 2],
 		 K_4: [3, 'h', K_r, 0, 3], K_r: [3, 'l', K_4, 1, 3],
@@ -36,14 +35,22 @@ class Player:
 		 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-		self._Pololu = maestro.Controller(ttyStr = ser_port) #servo controller
-		pygame.init() #initialise pygame
-		self.clock = pygame.time.Clock()
-		self.clock.tick(30)
-		self.screen = pygame.display.set_mode([500, 200], DOUBLEBUF | HWACCEL) #initialise screen
-		self.screen.set_alpha(None)
+		#self._Pololu = maestro.Controller(ttyStr = ser_port) #servo controller
+		self._Pololu = maestro.Controller() #servo controller
+		for i in range(18): #initial position
+			self._Pololu.setSpeed(i, 0) #ensure max speed
+			self._Pololu.setTarget(i, self._pos_dict['m']) #goto middle
+		pygame.init() #initialize pygame
+		if self._display == True:
+			self.clock = pygame.time.Clock()
+			self.clock.tick(60)
+			self.screen = pygame.display.set_mode([500, 200], DOUBLEBUF | HWACCEL) #initialize screen
+			self.screen.set_alpha(None)
+		else:
+			self.screen = pygame.display.set_mode([300, 1], DOUBLEBUF | HWACCEL) #initialize screen
+			self.screen.set_alpha(None)
 		pygame.display.set_caption("Keyboard Servo Player") #title
-	def pmdl(self):
+	def primo(self):
 		""" loop to receive keystrokes then send command and update screen """
 		while True: #main program loop
 			for event in pygame.event.get(): #event loop
@@ -57,7 +64,7 @@ class Player:
 							#get_pressed returns an array containing over 100 keys
 							if not(pygame.key.get_pressed()[self._key_convert[event.key][2]]): #need to check state of oposing key
 								self._Pololu.setTarget(s, self._pos_dict['m']) #send command
-								self._Servos[s] = 'm' #save
+								self._Servos[s] = 'm' #save position
 								r, c = self._key_convert[event.key][3:]
 								self._key_color_matrix[r][c] = 0
 				elif event.type == KEYDOWN: #press
@@ -65,20 +72,31 @@ class Player:
 						s, p = self._key_convert[event.key][0:2]
 						if self._Servos[s] == 'm': #only moves on KEYDOWN from middle position
 							self._Pololu.setTarget(s, self._pos_dict[p]) #send command
-							self._Servos[s] = p #save
+							self._Servos[s] = p #save position
 							r, c = self._key_convert[event.key][3:]
 							self._key_color_matrix[r][c] = 255
-			for r in range(4): #setup new screen
-				for c in range(10):
-					color = (self._key_color_matrix[r][c], self._key_color_matrix[r][c], self._key_color_matrix[r][c])
-					rect = (c*50, r*50, 50, 50)
-					self.screen.fill(color, rect)
-					if self._key_color_matrix[r][c] > 9: #reduce color to black
-						self._key_color_matrix[r][c] -= 10
-			self.screen.fill((184, 16, 16), (400 , 100, 100, 100)) #fill out space that has no corresponding key 
-			pygame.display.update() #screen changes on monitor
-			self.clock.tick(30) #30fps				
+			if self._display == True:
+				for r in range(4): #setup new screen
+					for c in range(10):
+						color = (self._key_color_matrix[r][c], self._key_color_matrix[r][c], self._key_color_matrix[r][c])
+						rect = (c*50, r*50, 50, 50)
+						self.screen.fill(color, rect)
+						if self._key_color_matrix[r][c] > 9: #reduce color to black
+							self._key_color_matrix[r][c] -= 10
+				self.screen.fill((184, 16, 16), (400 , 100, 100, 100)) #fill out space that has no corresponding key
+				pygame.display.update() #screen changes on monitor
+				self.clock.tick(60) #60fps makes servos more responsive
 
 if __name__ == '__main__':
-	music = Player('/dev/ttyACM0')
-	music.pmdl()
+	if (len(sys.argv) > 1): #parse cmd line args
+		if sys.argv[1] == 'hide':
+			music = Player('/dev/ttyACM0', False)
+		elif sys.argv[1] == 'help':
+			print("'hide' disables the visualization of key presses")
+			sys.exit()
+		else:
+			print("unknown argument(s)")
+			sys.exit()
+	else: #default is to show the light grid
+		music = Player('/dev/ttyACM0',True)
+	music.primo()
