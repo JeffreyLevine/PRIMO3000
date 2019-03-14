@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e7b358f4084f481083f6e82dcbb3b495)](https://app.codacy.com/app/clindsa1/PRIMO3000?utm_source=github.com&utm_medium=referral&utm_content=JeffreyLevine/PRIMO3000&utm_campaign=Badge_Grade_Dashboard)
+
 # PRIMO3000
 For the Percussive Responsive Interactive Microcontrolled Orchestra (PRIMO) 3000 project
 
