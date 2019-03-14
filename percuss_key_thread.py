@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+#uses pygame to convert key presses to servo command threads
+#currently getting 4 simultaneous key presses
+
 import sys, time, threading
 import maestro
 import pygame
@@ -7,7 +10,8 @@ from pygame.locals import *
 
 strike_delay = 0.05 #time for striker to go from middle to extreme
 
-class Note(threading.Thread):
+class Note(threading.Thread): #this could just be a function inside Player
+	""" uses a thread to perform servo strike """
 	def __init__(self, controller, servo, pos, mid):
 		""" servo as int (0-17), pos as int """
 		threading.Thread.__init__(self)
@@ -16,6 +20,7 @@ class Note(threading.Thread):
 		self._p = pos
 		self._m = mid
 	def run(self):
+		""" goto position, wait, return to middle """
 		self._c.pos = (self._s, self._p) #property
 		with self._c.maestro_lock: #get Lock
 			self._c.goto_pos(self._s, self._p) #strike
@@ -74,10 +79,12 @@ class Player:
 
 	def pmcl(self):
 		""" loop to receive keystrokes then send command and update screen """
+		pygame.event.set_allowed(None)
+		pygame.event.set_allowed(QUIT)
+		pygame.event.set_allowed(KEYDOWN) #limiting events entering queue
 		while True: #main program loop
 			for event in pygame.event.get(): #event loop
 				if event.type == QUIT:
-					print (self._Servos)
 					pygame.quit()
 					sys.exit()
 				elif event.type == KEYDOWN: #press
@@ -91,5 +98,5 @@ class Player:
 
 
 if __name__ == '__main__':
-	music = Player('/dev/ttyACM0')
+	music = Player('/dev/ttyACM0') #test tty
 	music.pmcl()
