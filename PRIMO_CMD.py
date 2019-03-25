@@ -23,7 +23,8 @@ class Player():
 		""" servo goto position, wait, return to middle """
 		t = threading.Thread(target=self._task(servo, pos))
 		t.start()
-	def wait(self, duration): #str containing delay
+	@classmethod
+	def wait(duration): #str containing delay
 		time.sleep(delays[duration])
 	def _task(self, servo, pos):
 		with self._maestrolock: #get Lock
