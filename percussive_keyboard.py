@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+'''
+Creates servo commands and visualization accompanying key presses
+From testing : 4 simultaneous keystrokes, can have 6-8 keys down at same time
+'''
+
 import sys
 import maestro
 import pygame
