@@ -14,9 +14,12 @@ delays = {
  'longest': .5
 }
 
+DOWN_POSITION = 5400
+HOME_POSITION = DOWN_POSITION + 500
+
 class Player():
 	def __init__(self):
-		self._strike_delay = 0.1
+		self._strike_delay = 0.05
 		self._Pololu = maestro.Controller() #servo controller use default tty
 		self._maestrolock = threading.Lock() #lock for around the serial port
 	def go(self, servo, pos):
@@ -55,3 +58,41 @@ PRIMO.wait('longest')
 PRIMO.go(2, 4000)
 PRIMO.wait('short')
 PRIMO.go(1, 4000)
+
+#********************************************************************
+#better way to treat delays like music timing
+#need to incorporate this into the Player class
+t0 = time.time()
+go(0, HOME_POSITION)
+go(1, HOME_POSITION)
+time.sleep(.1)
+
+#everyone to middle
+for i in range(30):
+	bpm = 150.0
+	MINUTE = 60.0
+	beat = MINUTE / bpm
+	measure = beat * 4.0
+	sixteenth = measure / 16
+	
+	strike = lambda servo: go(servo, DOWN_POSITION)
+	
+	# Measure 1!
+	strike(1)
+	time.sleep(2 * sixteenth)
+	strike(1)
+	time.sleep(2 * sixteenth)
+	strike(0)
+	time.sleep(2 * sixteenth)
+	strike(1)
+	time.sleep(1 * sixteenth)
+	strike(1)
+	time.sleep(2 * sixteenth)
+	strike(1)
+	time.sleep(1 * sixteenth)
+	strike(1)
+	time.sleep(2 * sixteenth)
+	strike(0)
+	time.sleep(2 * sixteenth)
+	strike(0)
+	time.sleep(2 * sixteenth)
