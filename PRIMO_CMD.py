@@ -21,7 +21,7 @@ class Player():
 		self._maestrolock = threading.Lock() #lock for around the serial port
 	def go(self, servo, pos):
 		""" servo goto position, wait, return to middle """
-		t = threading.Thread(target=self._task(servo, pos))
+		t = threading.Thread(target=task, args=(servo, pos))
 		t.start()
 	@classmethod
 	def wait(duration): #str containing delay
