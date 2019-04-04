@@ -94,7 +94,7 @@ class Player:
 							self._Servos[s] = p
 							task = Note(self, s, self._pos_dict[p], self._pos_dict['m']) #create
 							task.start() #run
-					self.clock.tick(60)				
+					self.clock.tick(60)			
 
 
 if __name__ == '__main__':
