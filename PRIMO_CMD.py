@@ -18,7 +18,7 @@ class Player():
 		self.beat = 60.0 / self.bpm
 		self.measure = self.beat * 4.0
 		self.sixteenth = self.measure / 16
-		
+
 		self._Pololu = maestro.Controller() #servo controller use default tty
 		self._maestrolock = threading.Lock() #lock for around the serial port
 		for i in range(self.num_servos): #start at home
