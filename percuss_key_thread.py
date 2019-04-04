@@ -35,7 +35,7 @@ class Player:
 	def __init__(self, ser_port):
 		self._pos_dict = { 'l': 4500, 'm': 6750, 'h': 9000 } #l = low, m = mid, h = high
 		self._key_convert = { #{key: [servo, position, opposite, row, col]}
-		 K_1: [0, 'h', K_q, 0, 0], K_q: [0, 'l', K_1, 1, 0], 
+		 K_1: [0, 'h', K_q, 0, 0], K_q: [0, 'l', K_1, 1, 0],
 		 K_2: [1, 'h', K_w, 0, 1], K_w: [1, 'l', K_2, 1, 1],
 		 K_3: [2, 'h', K_e, 0, 2], K_e: [2, 'l', K_3, 1, 2],
 		 K_4: [3, 'h', K_r, 0, 3], K_r: [3, 'l', K_4, 1, 3],
@@ -72,7 +72,7 @@ class Player:
 	def get_pos(servo):
 		return self._Servos[servo]
 	pos = property(fget=get_pos, fset=set_pos)
-	
+
 	def goto_pos(self, servo, pos):
 		""" maestro.setTarget wrapper """
 		self._Pololu.setTarget(servo, pos)
@@ -94,7 +94,7 @@ class Player:
 							self._Servos[s] = p
 							task = Note(self, s, self._pos_dict[p], self._pos_dict['m']) #create
 							task.start() #run
-					self.clock.tick(60)					
+					self.clock.tick(60)				
 
 
 if __name__ == '__main__':
